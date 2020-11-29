@@ -15,7 +15,7 @@
 
 7、即时播放，不受其它语音播报干扰。
 
-8、网络质量不好，会影响在线合成语音的播报效果。
+8、网络质量不好，会有一定程度影响在线合成语音的播报效果。
 
 9、基于百度合成语音免费版整合而成。
 
@@ -107,3 +107,29 @@ public class Application extends android.app.Application {
         android:icon="@mipmap/ic_launcher"
         
 ================================================================================================
+
+
+播报语音：
+
+//获取语音工具类实例
+
+mSpeaker = MySpeaker.getInstance(this);
+
+//语音播报前，判空处理，contents二维数组是播报的具体内容，contents[0]：播报文件的文件名，contents[1]：播报的语音内容
+
+if (mSpeaker != null) {
+
+   contents = PlayContent.getContent(PlayContent.Index.avoid.ordinal());
+   
+   if(contents != null && contents.length == 2){
+   
+      mSpeaker.speak(contents[0],contents[1]);
+      
+   }
+   
+}
+
+================================================================================================
+
+自定义语音播报内容：
+
