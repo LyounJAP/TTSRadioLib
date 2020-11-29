@@ -133,3 +133,100 @@ if (mSpeaker != null) {
 
 自定义语音播报内容：
 
+自定义PlayContent这个类就好，播报时直接调用这个类中的内容进行播报，需注意的是，枚举Index的长度需和二维数组contents长度一致：
+
+public class PlayContent {
+
+    //语音播放文件名集合
+    public enum Index {
+        avoid,
+        bad,
+        beginmove,
+        cancel,
+        finish,
+        gopower,
+        power,
+        select,
+        ydyl,
+        zudang
+    }
+
+    //二维数组中的一维长度,跟Index项目数相等,跟Index中的顺序一致，二维长度为2，0-文件名，1-播报内容
+
+    public static final String[][] contents = new String[][]{
+            {"avoid", "请避让"},
+            {"bad", "出现故障"},
+            {"beginmove", "出发了"},
+            {"cancel", "取消了"},
+            {"finish", "任务完成"},
+            {"gopower", "该休息了"},
+            {"power", "准备补充能量"},
+            {"select", "请选择"},
+            {"ydyl", "欢迎您"},
+            {"zudang", "被挡住了"},
+    };
+
+    //通过传入数组下标的方式，获取该播报的文件名和语音内容
+    public static String[] getContent(int index) {
+        if (index >= contents.length) {
+            throw new ArrayIndexOutOfBoundsException();
+        }
+        return contents[index];
+    }
+    
+}
+
+================================================================================================
+
+播报特殊声音：
+
+播报特殊声音是通过Param.setParam方法来实现的，他要求在Application初始化语音工具类之前调用，通过调整合成语音播音员、语调、语速、音量的方式，灵活实现多种特殊的声音效果：
+
+//设置特殊语音-童音
+
+Param.setParam("4","6");
+
+//设置特殊语音-女声
+
+Param.setParam("0","5");
+
+//设置特殊语音-普通男声
+
+Param.setParam("1","5");
+
+//设置特殊语音-情感男声
+
+Param.setParam("3","5");
+
+================================================================================================
+
+替换自己的百度合成语音鉴权文件（推荐）：
+
+第一步：找到你项目工程的app/src/main目录，点击新建assets文件夹。
+
+第二步：将鉴权文件auth.properties拷贝到assets文件夹中。
+
+第三步：将文件中的appId、appKey、secretKey、applicationId值，分别替换成你在百度开发者平台上申请的合成语音应用的AppID、API Key、Secret Key、包名，包名即你当前项目的manifest文件中package的值。
+
+第四步：在Application初始化语音工具类之前，传入自己项目的Auth认证：
+
+if (mSpeaker != null) {
+
+   //传入自己的Auth认证,与assets下的auth.properties配合使用
+   
+   Auth auth = Auth.getInstance(this);
+   
+   mSpeaker.init(true,auth);
+   
+   //常规方法
+   
+   // mSpeaker.init(true);
+   
+}
+
+================================================================================================
+
+代码混淆：
+
+-keep class top.lyoun.ttsradiolib.radio.**{*;}
+
