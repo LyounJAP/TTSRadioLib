@@ -1,0 +1,100 @@
+ <!-- @Auth: 李友能-->
+ <!-- @gitHub: https://github.com/LyounJAP/TTSRadioLib.git -->
+ <!-- @createTime: 2020-11-29 -->
+
+集成百度合成语音详细步骤如下：
+1、首先切换至project工程目录，将com.baidu.tts_2.6.1.109.20200424_be04a21.jar
+拷贝进app/libs文件夹中，并右键点击com.baidu.tts_2.6.1.109.20200424_be04a21.jar，并选择add library。
+2、将assets文件夹、jniLibs文件夹拷贝进app/src/main文件夹中。
+3、切换回Android工程目录。
+4、编辑manifests文件夹下的AndroidManifest.xml，为百度合成语音添加相关权限如下：
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+5、为支持api level 28 以上编译，请在<application></application>之间添加如下uses-library：
+    <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+6、在AndroidManifest.xml中找到package，即包名，修改build.gradle(:app)文件中的android{defaultConfig{下的
+    applicationId，请确保applicationId 跟package包名一致。
+7、进入百度Ai开放平台，点击控制台，为自己的应用申请使用码。地址：https://ai.baidu.com/ai-doc/SPEECH/Ck4nlz4cx
+8、已有百度账号可直接登录，没有百度账号先注册
+9、登录成功之后，点击左侧菜单栏的语音技术，点击管理应用，你可以看到你之前创建的应用。
+10、点击创建应用，为你的新的app添加使用码，依次输入应用名称（具体名称可随便，最好可以和工程名一致吧），
+    应用类型（默认就好，也可以选择工具应用等），语音报名选择Android,填写当前项目的package包名，
+    应用描述（可以随便写几个字）。点击立即创建。
+11、创建完毕后，点击查看应用详情，从左至右，依次可以看到我们的应用名称、AppID、API Key、Secret Key、包名，
+    修改assets文件夹下的auth.properties,依次将AppID、API Key、Secret Key、包名填入到对应的项上去。
+12、将radio语音工具类拷贝进项目中。
+13、radio语音工具类介绍，MyAudioTracker是离线语音播放工具，你可以通过他直接去访问assets/radio/下的pcm语音文件并播放，
+    MySpeaker是在线语音播放工具类，同时他会自动判断当前的在线情况，如果网络不好，他会自动转化为离线播放，离线播放
+    的声音文件请提前准备在相关位置，如assets/radio文件夹中，或者/sdcard/radio/app名/下。
+14、MyAudioTracker介绍：可通过getInstance拿取到实例，然后通过speaker方法进行离线语音播放，speaker方法有
+    两个参数，第1个是离线语音的文件名。第二个参数是AssetManager,如果你想从assets文件中获取就填写assetManager实例，
+    如果你想从sdcard中获取，就填写null。文件名仅写文件名，而不需要带路径，具体路径都定义在top.lyoun.myradio.radio.data.model.FileUtil中。
+    您还可以调用stop方法停止正在播放中的语音，调用destroy方法释放掉相关资源。该离线语音已实现了抢占式的语音播报，
+    即同时有几段语音，但每次只播放最后一段语音，且抢占式播放的过程中还没有杂音、卡顿。
+15、MySpeaker介绍：可通过getInstance拿到实例，使用之前需要初始化，即调用init方法，MySpeaker提供的语音播放方法有
+    很多，你还可以选择批量播放文本，但主要着重介绍下speaker方法，speaker方法共有5个参数，他们分别是要播放的
+    文本内容（要播放的文本内容不能过长），生成的音频文件存放的文件名（如果不写，将默认用文本内容作为文件名），
+    是否播报语音（true播报，false不播报），是否保存生成的音频文件（true保存，false不保存，默认格式.pcm），
+    指定当前是否使用离线语音（true离线语音，false在线语音，播报离线语音的话，需要在对应的位置提前准备音频文件）。
+    其实speaker方法在执行的时候会自动去检查当前的网络状况，如果当前网络不好的话，他会自动切换成离现语音播放，
+    如果您指定了播放离线语音的话，就算当前网络状况良好，他也只会播报离线语音。生成文件的完整路径也是由
+    top.lyoun.myradio.radio.data.model.FileUtil控制。通过speaker方法你可以做很多事，比如你只想生成音频文件，
+    还有就算只播放不生成相关文件。
+    此外MySpeaker还提供pause方法，他能中断正在播放的内容，如果你下次再调用resume方法，未播放完成的剩余内容将继续播放完毕，
+    你也可以调用stop方法来终止正在播放的内容。注意，pause和resume方法只适用在播放在线语音时才起作用。
+    最后可以通过destroy方法来释放资源。
+16：MyAudioTracker正确调用步骤：
+    MyAudioTracker mAudioTracker;
+    AssetManager mAssetManager;
+    //获取实例
+    if(mAudioTracker == null){
+        mAudioTracker = MyAudioTracker.getInstance(mContext);
+    }
+    //播放语音
+    if(mAudioTracker != null){
+        if(mAssetManager == null){
+           mAssetManager = mContext.getAssets();
+        }
+        mAudioTracker.speaker(fileName,mAssetManager);
+        //mAudioTracker.speaker(fileName,null);
+    }
+    //停止播放
+    if(mAudioTracker != null){
+        mAudioTracker.stop();
+    }
+    //释放资源
+    if(mAudioTracker != null){
+        mAudioTracker.destroy();
+    }
+17、MySpeaker正确调用步骤：
+    MySpeaker mSpeaker;
+    //获取实例
+    if(mSpeaker == null){
+        mSpeaker = MySpeaker.getInstance(this);
+    }
+    //初始化
+    if(mSpeaker != null){
+       mSpeaker.init(true);
+    }
+    //播放语音
+    if (mSpeaker != null) {
+       mSpeaker.speak(text,fileName,ifSpeak,ifSave,ifOnline);
+    }
+    //停止播放
+    if (mSpeaker != null) {
+       mSpeaker.stop();
+    }
+    //释放资源
+    if (mSpeaker != null) {
+       mSpeaker.destroy();
+    }
+18、一般在播报语音时，只需要调用MySpeaker这个类就可以了。
+
+
+
