@@ -22,4 +22,88 @@
 
 项目集成：
 
+只需要5步即可将合成语音集成进你的项目：
 
+第一步：将语音合成工具包TTSRadioLib.aar，拷贝到你项目工程下的libs文件夹下。
+
+第二步：在你项目modul的build.gradle文件中加入aar目录声明：
+
+android{
+  
+  ...
+  
+  //声明libs目录
+  
+  repositories {
+  
+    flatDir {
+    
+        dirs 'libs'   // aar目录
+        
+    }
+    
+  }
+  
+  ...
+  
+}
+
+第三步：在dependencies下引入arr文件依赖：
+
+dependencies{
+
+...
+
+//引入语音依赖
+
+implementation(name: 'TTSRadioLib', ext: 'aar')
+
+...
+
+}
+
+第四步：自定义Application的onCreate方法中，初始化语音Speaker:
+
+public class Application extends android.app.Application {
+
+    @Override
+    
+    public void onCreate() {
+    
+        //设置特殊语音
+        
+        Param.setParam("4","6");
+        
+        //初始化语音
+        
+        MySpeaker mSpeaker = MySpeaker.getInstance(this);
+        
+        if (mSpeaker != null) {
+        
+            //传入自己的Auth认证,与assets下的auth.properties配合使用
+            
+            Auth auth = Auth.getInstance(this);
+            
+            mSpeaker.init(true,auth);
+            
+//            //常规方法
+
+//            mSpeaker.init(true);
+
+        }
+        
+        super.onCreate();
+        
+    }
+
+}
+
+
+第五步：将自定义Application引入到manifest配置文件中，添加name属性值：
+
+<application
+        android:name=".Application"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        
+================================================================================================
