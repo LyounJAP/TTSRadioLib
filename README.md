@@ -156,8 +156,8 @@ public class PlayContent {
     //二维数组中的一维长度,跟Index项目数相等,跟Index中的顺序一致，二维长度为2，0-文件名，1-播报内容
 
     public static final String[][] contents = new String[][]{
-            {"avoid", "请避让"},
-            {"bad", "出现故障"},
+            {"avoid", "请避让"},  //播报内容可考虑加入空格、‘，’逗号来调整播报效果，如： "请 避让" ，或者 "请，避让" ,中间会产生一种停顿效果
+            {"bad", "出现故障"},  //播报内容还可在单个文字后面加上(字拼音，音调来实现发音多音字)， 如： "请避让(rang4)" 读第4声
             {"beginmove", "出发了"},
             {"cancel", "取消了"},
             {"finish", "任务完成"},
